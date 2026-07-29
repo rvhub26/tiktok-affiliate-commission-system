@@ -24,7 +24,16 @@
     <input id="phone" name="phone" type="text" value="{{ old('phone', $affiliate->phone) }}" class="form-field">
 </div>
 
-<div class="grid gap-5 md:grid-cols-2">
+<div class="grid gap-5 md:grid-cols-3">
+    <div>
+        <label for="affiliate_type" class="block text-sm font-medium text-slate-700">Affiliate Type</label>
+        <select id="affiliate_type" name="affiliate_type" class="form-field">
+            <option value="inhouse" @selected(old('affiliate_type', $affiliate->affiliate_type ?: 'inhouse') === 'inhouse')>Inhouse</option>
+            <option value="online" @selected(old('affiliate_type', $affiliate->affiliate_type) === 'online')>Online</option>
+        </select>
+        <p class="mt-1 text-xs text-slate-500">Admin boleh ubah type jika Online bertukar kepada Inhouse, atau sebaliknya.</p>
+    </div>
+
     <div>
         <label for="status" class="block text-sm font-medium text-slate-700">Status</label>
         <select id="status" name="status" class="form-field">

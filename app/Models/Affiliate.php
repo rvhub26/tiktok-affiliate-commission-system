@@ -93,4 +93,37 @@ class Affiliate extends Model
     {
         return $this->referral?->url();
     }
+
+    public function canManageAffiliateTypes(): bool
+    {
+        $code = strtoupper((string) $this->affiliate_code);
+
+        return $code !== '' && in_array($code, config('affiliate_management.type_manager_codes', []), true);
+    }
+
+    public function hasDescendant(self $affiliate): bool
+    {
+        if (! $affiliate->exists || $affiliate->id === $this->id) {
+            return false;
+        }
+
+        $current = $affiliate;
+        $guard = 0;
+
+        while ($current->upline_id && $guard < 100) {
+            if ((int) $current->upline_id === (int) $this->id) {
+                return true;
+            }
+
+            $current = self::query()->select(['id', 'upline_id'])->find($current->upline_id);
+
+            if (! $current) {
+                return false;
+            }
+
+            $guard++;
+        }
+
+        return false;
+    }
 }

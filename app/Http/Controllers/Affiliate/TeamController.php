@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Affiliate;
 
 use App\Http\Controllers\Controller;
+use App\Models\Affiliate;
 use App\Models\CommissionRun;
 use App\Services\AffiliateTeamService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class TeamController extends Controller
@@ -56,6 +59,7 @@ class TeamController extends Controller
             ],
             'teamPerformance' => $performance,
             'teamStats' => $teamStats,
+            'canManageAffiliateTypes' => $affiliate->canManageAffiliateTypes(),
             'periodFilters' => $periodFilters,
             'sortFilters' => $sortFilters,
             'months' => $this->months(),
@@ -65,6 +69,25 @@ class TeamController extends Controller
                 ->orderByDesc('year')
                 ->pluck('year'),
         ]);
+    }
+
+    public function updateType(Request $request, Affiliate $affiliate): RedirectResponse
+    {
+        $manager = $request->user()->affiliate;
+        abort_unless($manager, 404);
+        abort_unless($manager->canManageAffiliateTypes() && $manager->hasDescendant($affiliate), 403);
+
+        $data = $request->validate([
+            'affiliate_type' => ['required', Rule::in(['inhouse', 'online'])],
+        ]);
+
+        $affiliate->update([
+            'affiliate_type' => $data['affiliate_type'],
+        ]);
+
+        return redirect()
+            ->route('affiliate.team', $request->only(['month', 'year', 'sort', 'direction']))
+            ->with('success', 'Affiliate type updated.');
     }
 
     private function resolvePeriodFilters(Request $request): array

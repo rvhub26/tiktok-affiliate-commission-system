@@ -92,27 +92,39 @@ class AffiliateController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email', 'unique:affiliates,email'],
+            'affiliate_type' => ['required', Rule::in(['inhouse', 'online'])],
+            'email' => [
+                Rule::requiredIf(fn () => $request->input('affiliate_type') === 'inhouse'),
+                'nullable',
+                'email',
+                'max:255',
+                'unique:users,email',
+                'unique:affiliates,email',
+            ],
             'phone' => ['nullable', 'string', 'max:50'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
             'upline_id' => ['nullable', 'exists:affiliates,id'],
         ]);
 
         DB::transaction(function () use ($data): void {
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => Hash::make('password'),
-                'must_change_password' => true,
-                'role' => 'affiliate',
-            ]);
+            $user = null;
+
+            if ($data['affiliate_type'] === 'inhouse') {
+                $user = User::create([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'password' => Hash::make('password'),
+                    'must_change_password' => true,
+                    'role' => 'affiliate',
+                ]);
+            }
 
             Affiliate::create([
-                'user_id' => $user->id,
+                'user_id' => $user?->id,
                 'upline_id' => $data['upline_id'] ?? null,
-                'affiliate_type' => 'inhouse',
+                'affiliate_type' => $data['affiliate_type'],
                 'name' => $data['name'],
-                'email' => $data['email'],
+                'email' => $data['email'] ?? null,
                 'phone' => $data['phone'] ?? null,
                 'status' => $data['status'],
             ]);
@@ -147,6 +159,7 @@ class AffiliateController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'affiliate_type' => ['required', Rule::in(['inhouse', 'online'])],
             'email' => $emailRules,
             'phone' => ['nullable', 'string', 'max:50'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
@@ -160,6 +173,7 @@ class AffiliateController extends Controller
         DB::transaction(function () use ($affiliate, $data): void {
             $affiliate->update([
                 'upline_id' => $data['upline_id'] ?? null,
+                'affiliate_type' => $data['affiliate_type'],
                 'name' => $data['name'],
                 'email' => $data['email'] ?? null,
                 'phone' => $data['phone'] ?? null,

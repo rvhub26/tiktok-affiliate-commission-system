@@ -109,6 +109,11 @@
                         <div>
                             <h2 class="text-lg font-bold text-slate-950">Team Performance</h2>
                             <p class="mt-1 text-sm text-slate-500">Performance of your own downline only. Sensitive personal data such as full IC is never shown here.</p>
+                            @if ($canManageAffiliateTypes)
+                                <p class="mt-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800">
+                                    You can update Inhouse/Online type for affiliates inside your own team branch only.
+                                </p>
+                            @endif
                         </div>
                         @php
                             $numericSorts = ['tiktok_accounts', 'total_sales', 'personal_commission', 'overriding_generated'];
@@ -208,9 +213,29 @@
                                     <td class="font-mono text-slate-700">{{ $row['affiliate']->affiliate_code ?: '-' }}</td>
                                     <td><span class="badge badge-blue">{{ $row['level'] }}</span></td>
                                     <td>
-                                        <span class="badge {{ $row['affiliate']->affiliate_type === 'online' ? 'badge-amber' : 'badge-teal' }}">
-                                            {{ $row['affiliate']->affiliate_type === 'online' ? 'Online' : 'Inhouse' }}
-                                        </span>
+                                        @if ($canManageAffiliateTypes)
+                                            <form method="POST" action="{{ route('affiliate.team.type.update', $row['affiliate']) }}" class="flex min-w-40 items-center gap-2">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="month" value="{{ $periodFilters['month'] }}">
+                                                <input type="hidden" name="year" value="{{ $periodFilters['year'] }}">
+                                                @if ($sortFilters['sort'])
+                                                    <input type="hidden" name="sort" value="{{ $sortFilters['sort'] }}">
+                                                    <input type="hidden" name="direction" value="{{ $sortFilters['direction'] }}">
+                                                @endif
+                                                <select name="affiliate_type" class="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-bold text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200">
+                                                    <option value="inhouse" @selected($row['affiliate']->affiliate_type === 'inhouse')>Inhouse</option>
+                                                    <option value="online" @selected($row['affiliate']->affiliate_type === 'online')>Online</option>
+                                                </select>
+                                                <button type="submit" class="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100">
+                                                    Save
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="badge {{ $row['affiliate']->affiliate_type === 'online' ? 'badge-amber' : 'badge-teal' }}">
+                                                {{ $row['affiliate']->affiliate_type === 'online' ? 'Online' : 'Inhouse' }}
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="money">{{ number_format($row['tiktok_account_count']) }}</td>
                                     <td class="money">RM {{ number_format($row['total_sales'], 2) }}</td>

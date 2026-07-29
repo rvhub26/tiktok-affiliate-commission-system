@@ -156,6 +156,7 @@ Route::middleware(['auth', 'role:affiliate'])->prefix('affiliate')->name('affili
         Route::get('/dashboard', AffiliateDashboardController::class)->name('dashboard');
         Route::get('/commission', AffiliateCommissionController::class)->name('commission');
         Route::get('/team', AffiliateTeamController::class)->name('team');
+        Route::patch('/team/{affiliate}/type', [AffiliateTeamController::class, 'updateType'])->name('team.type.update');
         Route::get('/tiktok-accounts', [AffiliateTiktokAccountController::class, 'index'])->name('tiktok-accounts');
         Route::post('/tiktok-accounts', [AffiliateTiktokAccountController::class, 'store'])->name('tiktok-accounts.store');
         Route::patch('/tiktok-accounts/{account}/status', [AffiliateTiktokAccountController::class, 'updateStatus'])->name('tiktok-accounts.status');
