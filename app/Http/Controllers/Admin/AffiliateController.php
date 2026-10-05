@@ -114,6 +114,7 @@ class AffiliateController extends Controller
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'password' => Hash::make('password'),
+                    'current_password' => 'password',
                     'must_change_password' => true,
                     'role' => 'affiliate',
                 ]);
@@ -248,6 +249,7 @@ class AffiliateController extends Controller
                     'email' => $email,
                     'affiliate_code' => $affiliateCode,
                     'password' => Hash::make($temporaryPassword),
+                    'current_password' => $temporaryPassword,
                     'must_change_password' => true,
                     'role' => 'affiliate',
                 ]);
@@ -257,6 +259,7 @@ class AffiliateController extends Controller
             } else {
                 $affiliate->user->update([
                     'password' => Hash::make($temporaryPassword),
+                    'current_password' => $temporaryPassword,
                     'role' => 'affiliate',
                     'must_change_password' => true,
                 ]);

@@ -77,11 +77,10 @@ class CommissionCalculatorService
                             $this->queueEntry($entries, $totals, $run->id, (int) $order->id, $sellerId, $sellerId, 'personal', null, $rates['personal_rate'], $baseAmount, null, $now);
 
                             $hasDirectDownlines = ($affiliateData['directDownlineCountByAffiliate'][$sellerId] ?? 0) > 0;
-                            $isDesignatedManager = isset($affiliateData['managerIds'][$sellerId]);
                             $uplineId = $affiliateData['uplineByAffiliate'][$sellerId] ?? null;
 
                             // Manager bonus hanya untuk manager teratas (tiada upline).
-                            if ($isDesignatedManager && ! $uplineId) {
+                            if ($hasDirectDownlines && ! $uplineId) {
                                 $this->queueEntry($entries, $totals, $run->id, (int) $order->id, $sellerId, $sellerId, 'manager_bonus', null, $rates['manager_bonus_rate'], $baseAmount, null, $now);
                             }
 
@@ -162,12 +161,11 @@ class CommissionCalculatorService
     private function affiliateData(): array
     {
         $affiliates = DB::table('affiliates')
-            ->select(['id', 'upline_id', 'is_manager'])
+            ->select(['id', 'upline_id'])
             ->get();
 
         $uplineByAffiliate = [];
         $directDownlineCountByAffiliate = [];
-        $managerIds = [];
 
         foreach ($affiliates as $affiliate) {
             $affiliateId = (int) $affiliate->id;
@@ -178,16 +176,11 @@ class CommissionCalculatorService
             if ($uplineId) {
                 $directDownlineCountByAffiliate[$uplineId] = ($directDownlineCountByAffiliate[$uplineId] ?? 0) + 1;
             }
-
-            if ($affiliate->is_manager) {
-                $managerIds[$affiliateId] = true;
-            }
         }
 
         return [
             'uplineByAffiliate' => $uplineByAffiliate,
             'directDownlineCountByAffiliate' => $directDownlineCountByAffiliate,
-            'managerIds' => $managerIds,
         ];
     }
 

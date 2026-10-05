@@ -314,6 +314,7 @@ class AffiliateExcelSyncService
                 'email' => $email,
                 'affiliate_code' => $affiliate->affiliate_code,
                 'password' => Hash::make($temporaryPassword),
+                'current_password' => $temporaryPassword,
                 'must_change_password' => true,
                 'role' => 'affiliate',
             ]);

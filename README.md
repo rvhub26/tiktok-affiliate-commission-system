@@ -60,20 +60,34 @@ Hanya order dengan `order_status = Settled` dikira sebagai eligible order.
 
 ### Manager Special Rule
 
-Jika seller affiliate mempunyai sekurang-kurangnya satu direct downline:
+Jika seller affiliate mempunyai sekurang-kurangnya satu direct downline DAN **tiada upline** (manager teratas):
 
 - Seller menerima tambahan 1% daripada jualan personal sendiri.
+- Manager yang mempunyai upline mendapat **RM0** Manager Bonus; komisyen mereka datang daripada L1 Split 70/30 (lihat bawah) jika layak.
 - `commission_type = manager_bonus`
 - `rate = 0.01`
 
-Jika seller affiliate tidak mempunyai direct downline:
+Direct upline seller (jika wujud) menerima Overriding L1 (1%) daripada jualan seller — **ini terpakai sama ada seller ada direct downline atau tidak**. Manager Bonus (di atas) adalah tambahan untuk seller, bukan pengganti Overriding L1 upline.
 
-- 1% daripada jualan seller diberikan kepada direct upline, jika wujud.
-- `commission_type = overriding`
+- `commission_type = l1_overriding` (atau `l1_split_seller` / `l1_split_upline` jika threshold "L1 Overriding Split" di bawah dicapai)
 - `level = 1`
 - `rate = 0.01`
 
-Nota: Sistem tidak double count Level 1. Jika seller sudah mempunyai direct downline, 1% kekal kepada seller sebagai manager bonus dan direct upline tidak menerima Level 1 daripada jualan seller tersebut.
+Nota teknikal: status "ada direct downline" dikira secara **dinamik** daripada `affiliates.upline_id` (sama seperti badge "Manager"/"Affiliate" dalam Affiliate Hierarchy), bukan daripada flag statik. Column `is_manager` pada table `affiliates` wujud dalam schema tetapi **tidak lagi digunakan** oleh `CommissionCalculatorService` — jangan bergantung padanya untuk logic komisyen akan datang, sebab ia tidak auto-update bila hierarchy berubah.
+
+### L1 Overriding Split (Putus 70/30)
+
+Jika seller affiliate mempunyai direct downline DAN mencapai kedua-dua threshold jualan bulanan berikut serentak:
+
+- Jualan personal seller sendiri ≥ RM20,000, DAN
+- Jualan personal seller + jualan direct downline seller ≥ RM100,000
+
+maka Overriding L1 (1%) yang sepatutnya 100% ke upline akan **di-"putus"**:
+
+- 70% daripada Overriding L1 kekal kepada seller (`commission_type = l1_split_seller`)
+- 30% daripada Overriding L1 diberikan kepada direct upline seller (`commission_type = l1_split_upline`)
+
+Jika threshold ini tidak dicapai, Overriding L1 dikira secara normal (100% ke upline, `commission_type = l1_overriding`).
 
 ### Cascading Overriding
 
@@ -86,7 +100,7 @@ Kadar:
 |---|---:|
 | Personal Commission | 10% |
 | Manager Bonus | 1% |
-| Overriding L1 | 1% |
+| Overriding L1 | 1% (di-putus 70/30 antara seller/upline jika threshold jualan dicapai — lihat "L1 Overriding Split") |
 | Overriding L2 | 0.3% |
 | Overriding L3 | 0.2% |
 
@@ -224,7 +238,7 @@ Expected result untuk contoh jualan Ali RM5,000:
 | Abu | Overriding L1 1% | RM50 |
 | Total Commission |  | RM550 |
 
-Nota: Contoh ini menganggap Ali tidak mempunyai direct downline. Jika Ali mempunyai direct downline, 1% akan kekal kepada Ali sebagai manager bonus dan tidak diberikan kepada Abu sebagai Level 1.
+Nota: Contoh ini menganggap Ali tidak mempunyai direct downline. Jika Ali mempunyai direct downline dan layak L1 Split, 0.7% kekal kepada Ali dan 0.3% diberikan kepada Abu. Ali tidak mendapat Manager Bonus kerana Ali mempunyai upline (Abu).
 
 ## Assumptions
 

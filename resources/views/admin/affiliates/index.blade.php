@@ -108,6 +108,7 @@
                                 <th class="text-left">Type</th>
                                 <th class="text-left">TikTok Accounts</th>
                                 <th class="text-left">Login / Email</th>
+                                <th class="text-left">Password</th>
                                 <th class="text-left">Direct Upline</th>
                                 <th class="text-right">Direct Downline</th>
                                 <th class="text-left">Position</th>
@@ -169,6 +170,13 @@
                                             <div class="mt-1 text-xs text-slate-500">{{ ! $affiliate->user->email || str_ends_with((string) $affiliate->user->email, '.local') ? 'Affiliate code login' : $affiliate->user->email }}</div>
                                         @endif
                                     </td>
+                                    <td class="text-slate-700">
+                                        @if ($affiliate->user?->current_password)
+                                            <span class="font-mono text-xs">{{ $affiliate->user->current_password }}</span>
+                                        @else
+                                            <span class="text-slate-400">-</span>
+                                        @endif
+                                    </td>
                                     <td class="text-slate-700">{{ $affiliate->upline?->name ?: '-' }}</td>
                                     <td class="money text-slate-700">{{ $affiliate->direct_downlines_count }}</td>
                                     <td>
@@ -217,7 +225,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="12" class="px-4 py-8 text-center text-slate-500">
+                                    <td colspan="13" class="px-4 py-8 text-center text-slate-500">
                                         Belum ada affiliate.
                                     </td>
                                 </tr>

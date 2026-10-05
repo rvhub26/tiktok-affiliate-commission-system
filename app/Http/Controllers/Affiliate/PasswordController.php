@@ -97,6 +97,7 @@ class PasswordController extends Controller
 
         $request->user()->forceFill([
             'password' => Hash::make($data['password']),
+            'current_password' => $data['password'],
             'must_change_password' => false,
             'password_changed_at' => now(),
         ])->save();

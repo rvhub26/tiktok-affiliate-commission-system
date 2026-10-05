@@ -493,7 +493,9 @@ class AffiliateImportController extends Controller
     private function extractAffiliateRows(string $groupName, array $sheetRows): array
     {
         $rows = [];
-        $section = null;
+        // Sheets without an explicit "INHOUSE" marker start directly with the
+        // inhouse section, so default to it until a marker says otherwise.
+        $section = 'inhouse';
         $headers = [];
         $lastProfile = [];
 
@@ -729,7 +731,9 @@ class AffiliateImportController extends Controller
     {
         $text = strtolower(implode(' ', array_map(fn ($value) => trim((string) $value), $row)));
 
-        return str_contains($text, 'nama penuh') && (str_contains($text, 'tiktok') || str_contains($text, 'user id'));
+        return str_contains($text, 'nama penuh')
+            && (str_contains($text, 'tiktok') || str_contains($text, 'user id'))
+            && str_contains($text, 'manager');
     }
 
     private function splitUsernames(string $value): array

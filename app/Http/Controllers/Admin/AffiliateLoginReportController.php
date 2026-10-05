@@ -151,6 +151,7 @@ class AffiliateLoginReportController extends Controller
                                 'email' => $email,
                                 'affiliate_code' => $affiliateCode,
                                 'password' => Hash::make($temporaryPassword),
+                                'current_password' => $temporaryPassword,
                                 'must_change_password' => true,
                                 'role' => 'affiliate',
                             ]);
@@ -164,6 +165,7 @@ class AffiliateLoginReportController extends Controller
                         } else {
                             $affiliate->user->forceFill([
                                 'password' => Hash::make($temporaryPassword),
+                                'current_password' => $temporaryPassword,
                                 'role' => 'affiliate',
                                 'must_change_password' => true,
                             ])->save();
