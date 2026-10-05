@@ -78,12 +78,13 @@ class CommissionCalculatorService
 
                             $hasDirectDownlines = ($affiliateData['directDownlineCountByAffiliate'][$sellerId] ?? 0) > 0;
                             $isDesignatedManager = isset($affiliateData['managerIds'][$sellerId]);
+                            $uplineId = $affiliateData['uplineByAffiliate'][$sellerId] ?? null;
 
-                            if ($isDesignatedManager) {
+                            // Manager bonus hanya untuk manager teratas (tiada upline).
+                            if ($isDesignatedManager && ! $uplineId) {
                                 $this->queueEntry($entries, $totals, $run->id, (int) $order->id, $sellerId, $sellerId, 'manager_bonus', null, $rates['manager_bonus_rate'], $baseAmount, null, $now);
                             }
 
-                            $uplineId = $affiliateData['uplineByAffiliate'][$sellerId] ?? null;
                             $secondUplineId = $uplineId ? ($affiliateData['uplineByAffiliate'][$uplineId] ?? null) : null;
                             $thirdUplineId = $secondUplineId ? ($affiliateData['uplineByAffiliate'][$secondUplineId] ?? null) : null;
 
