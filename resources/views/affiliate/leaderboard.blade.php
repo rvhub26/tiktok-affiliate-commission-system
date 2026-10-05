@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-sm text-blue-800">
-                    Exact sales hanya dipaparkan untuk akaun anda sendiri. Jualan affiliate lain dirahsiakan untuk privasi.
+                    Jualan semua peserta dipaparkan secara terbuka untuk inspirasi komuniti.
                 </div>
 
                 {{-- Own rank callout (if not in top 10) --}}
@@ -127,13 +127,8 @@
                                             </div>
                                         </div>
                                         <div class="shrink-0 text-right">
-                                            @if ($isOwn)
-                                                <p class="text-sm font-black text-emerald-700">RM {{ number_format($entry['total_sales'], 2) }}</p>
-                                                <p class="text-xs text-slate-500">jualan anda</p>
-                                            @else
-                                                <p class="text-sm font-black text-slate-500">Private</p>
-                                                <p class="text-xs text-slate-400">jualan dirahsiakan</p>
-                                            @endif
+                                            <p class="text-sm font-black {{ $isOwn ? 'text-emerald-700' : 'text-slate-950' }}">RM {{ number_format($entry['total_sales'], 2) }}</p>
+                                            <p class="text-xs text-slate-500">{{ $isOwn ? 'jualan anda' : 'jualan peribadi' }}</p>
                                         </div>
                                     </div>
                                 </div>

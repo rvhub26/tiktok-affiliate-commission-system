@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\AffiliateRegistrationController;
 use App\Http\Controllers\Admin\CommissionController;
 use App\Http\Controllers\Admin\CommissionRateSettingController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\NoUplineAssignmentController;
 use App\Http\Controllers\Admin\OrderImportController;
 use App\Http\Controllers\Admin\TiktokAccountController;
 use App\Http\Controllers\Admin\TiktokAccountRequestController;
@@ -132,6 +133,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('orders/upload', [OrderImportController::class, 'store'])->name('orders.import');
     Route::delete('orders', [OrderImportController::class, 'destroyAll'])->name('orders.destroy-all');
     Route::delete('orders/{orderImport}', [OrderImportController::class, 'destroy'])->name('orders.destroy');
+
+    Route::post('no-upline/assign', [NoUplineAssignmentController::class, 'store'])->name('no-upline.assign');
 
     Route::get('commissions', [CommissionController::class, 'index'])->name('commissions.index');
     Route::post('commissions', [CommissionController::class, 'store'])->name('commissions.store');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Affiliate;
 use App\Models\CommissionEntry;
 use App\Models\CommissionRun;
 use App\Models\TiktokOrder;
@@ -292,6 +293,10 @@ class CommissionController extends Controller
             'filteredTotalCommission' => $filteredTotalCommission,
             'noUplineTotals' => $noUplineTotals,
             'noUplineSalesRows' => $noUplineSalesRows,
+            'assignableAffiliates' => Affiliate::query()
+                ->where('status', 'active')
+                ->orderBy('name')
+                ->get(['id', 'name', 'affiliate_code']),
             'commissionEntries' => $entryData['commissionEntries'],
             'summaryAffiliateOptions' => $summaryAffiliateOptions,
             'receiverOptions' => $entryData['receiverOptions'],

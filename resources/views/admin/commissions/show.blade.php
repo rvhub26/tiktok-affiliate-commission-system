@@ -271,6 +271,7 @@
                                 <th class="text-left">First Sale</th>
                                 <th class="text-left">Last Sale</th>
                                 <th class="text-left">Status</th>
+                                <th class="text-left">Assign to Affiliate</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 bg-white">
@@ -283,10 +284,54 @@
                                     <td class="whitespace-nowrap text-slate-700">{{ $row->first_sale_date ? \Carbon\Carbon::parse($row->first_sale_date)->format('d/m/Y') : '-' }}</td>
                                     <td class="whitespace-nowrap text-slate-700">{{ $row->last_sale_date ? \Carbon\Carbon::parse($row->last_sale_date)->format('d/m/Y') : '-' }}</td>
                                     <td><span class="badge badge-amber">No Upline</span></td>
+                                    <td class="min-w-[220px]">
+                                        <form method="POST" action="{{ route('admin.no-upline.assign') }}" onsubmit="return confirm('Kaitkan @'+@js($row->creator_username_normalized)+' dengan affiliate dipilih? Semua order sejarah username ini akan dikemaskini serta-merta.')">
+                                            @csrf
+                                            <input type="hidden" name="creator_username_normalized" value="{{ $row->creator_username_normalized }}">
+                                            <input type="hidden" name="creator_username" value="{{ $row->creator_username ?: $row->creator_username_normalized }}">
+                                            <div class="relative" data-combobox>
+                                                <input name="affiliate_id" type="hidden" value="" data-combobox-value>
+                                                <div class="flex overflow-hidden rounded-lg border border-slate-300 bg-white shadow-sm focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-100">
+                                                    <input
+                                                        type="text"
+                                                        autocomplete="off"
+                                                        placeholder="Cari affiliate..."
+                                                        class="min-w-0 flex-1 border-0 px-2 py-1.5 text-xs outline-none"
+                                                        data-combobox-input
+                                                    >
+                                                    <button type="button" class="border-l border-slate-200 px-2 text-[10px] font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-900" data-combobox-clear>
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                                <div class="absolute z-30 mt-1 hidden max-h-56 w-64 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg" data-combobox-options>
+                                                    @foreach ($assignableAffiliates as $affiliateOption)
+                                                        @php
+                                                            $optLabel = trim($affiliateOption->name.' '.($affiliateOption->affiliate_code ? '('.$affiliateOption->affiliate_code.')' : ''));
+                                                            $optSearch = strtolower(trim($affiliateOption->name.' '.$affiliateOption->affiliate_code));
+                                                        @endphp
+                                                        <button
+                                                            type="button"
+                                                            class="block w-full px-3 py-2 text-left text-xs hover:bg-emerald-50"
+                                                            data-combobox-option
+                                                            data-id="{{ $affiliateOption->id }}"
+                                                            data-label="{{ $optLabel }}"
+                                                            data-search="{{ $optSearch }}"
+                                                        >
+                                                            <span class="block font-semibold text-slate-900">{{ $affiliateOption->name }}</span>
+                                                            @if ($affiliateOption->affiliate_code)
+                                                                <span class="block text-[10px] text-slate-500">{{ $affiliateOption->affiliate_code }}</span>
+                                                            @endif
+                                                        </button>
+                                                    @endforeach
+                                                    <p class="hidden px-3 py-3 text-xs text-slate-500" data-combobox-empty>No affiliate found</p>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="py-8 text-center text-slate-500">No No Upline sales found for this commission period.</td>
+                                    <td colspan="8" class="py-8 text-center text-slate-500">No No Upline sales found for this commission period.</td>
                                 </tr>
                             @endforelse
                         </tbody>
